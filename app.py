@@ -170,7 +170,7 @@ def analyze_text_emotion(text):
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return "Sentify API is Online and Running!"
 
 # New Route: Checks if server is Online
 @app.route('/health', methods=['GET'])
@@ -270,3 +270,4 @@ if __name__ == '__main__':
     """pip install flask flask-cors requests"""
 # To run the server:
     """python app.py"""
+
