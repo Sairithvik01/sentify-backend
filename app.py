@@ -191,6 +191,7 @@ def analyze_text_route():
 def analyze_youtube_route():
     data = request.json
     video_url = data.get('url')
+    page_token = data.get('pageToken') # 🆕 Check if frontend sent a token
     
     if not video_url:
         return jsonify({"error": "No URL provided"}), 400
@@ -204,13 +205,13 @@ def analyze_youtube_route():
     if not video_id:
         return jsonify({"error": "Invalid YouTube URL"}), 400
 
-    if YOUTUBE_API_KEY == "YOUR_YOUTUBE_API_KEY_HERE":
+    if YOUTUBE_API_KEY == "YOUTUBE_API_KEY":
         return jsonify({"error": "API Key missing in Backend"}), 500
 
     try:
         comments = []
-        next_page_token = None
-        max_total = 1000   # 🔥 Increase capacity here
+        next_page_token = page_token # 🆕 Start from where we left off
+        max_total = 1000   
 
         while len(comments) < max_total:
             params = {
@@ -240,9 +241,7 @@ def analyze_youtube_route():
 
             next_page_token = res_json.get("nextPageToken")
             if not next_page_token:
-                break
-
-        comments = comments[:max_total]
+                break # 🆕 Break if there are no more comments left on the video
 
         results = [
             {"id": i, "text": t, **analyze_text_emotion(t)}
@@ -252,7 +251,8 @@ def analyze_youtube_route():
         return jsonify({
             "results": results,
             "total_comments_analyzed": len(results),
-            "source": f"YouTube: {video_id}"
+            "source": f"YouTube: {video_id}",
+            "nextPageToken": next_page_token # 🆕 Send the bookmark back to the frontend
         })
 
     except Exception as e:
@@ -270,4 +270,5 @@ if __name__ == '__main__':
     """pip install flask flask-cors requests"""
 # To run the server:
     """python app.py"""
+
 
